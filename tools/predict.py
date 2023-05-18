@@ -18,6 +18,8 @@ from os import path as osp
 import paddle
 from paddle import inference
 from paddle.inference import Config, create_predictor
+from threading import Thread
+import time
 
 from utils import build_inference_helper
 from paddlevideo.utils import get_config
@@ -153,9 +155,10 @@ def parse_file_paths(input_path: str) -> list:
     return files
 
 
-def main():
+def main(name):
     """predict using paddle inference model
     """
+    print('---开始---' + " 线程名: %d "%name + '#'*50)
     args = parse_args()
     cfg = get_config(args.config, overrides=args.override, show=False)
 
@@ -261,7 +264,7 @@ def main():
                 model_precision=args.precision,
                 batch_size=args.batch_size,
                 data_shape="dynamic",
-                save_path="./output/auto_log.lpg",
+                save_path="./output/auto_log_%d.lpg"%name,
                 inference_config=inference_config,
                 pids=pid,
                 process_name=None,
@@ -322,6 +325,45 @@ def main():
     if args.enable_benchmark:
         autolog.report()
 
+def run_main(name):
+    main(name)
 
 if __name__ == "__main__":
-    main()
+    # main(1)
+    start_time = time.time()
+    t1 = Thread(target=run_main, args=(1,))
+    t2 = Thread(target=run_main, args=(2,))
+    t3 = Thread(target=run_main, args=(3,))
+    t4 = Thread(target=run_main, args=(4,))
+    t5 = Thread(target=run_main, args=(5,))
+    t6 = Thread(target=run_main, args=(6,))
+    t7 = Thread(target=run_main, args=(7,))
+    t8 = Thread(target=run_main, args=(8,))
+    t9 = Thread(target=run_main, args=(9,))
+    t10 = Thread(target=run_main, args=(10,))
+
+    t1.start()
+    t2.start()
+    t3.start()
+    t4.start()
+    t5.start()
+    t6.start()
+    t7.start()
+    t8.start()
+    t9.start()
+    t10.start()
+
+    t1.join()    
+    t2.join()
+    t3.join()
+    t4.join()
+    t5.join()
+    t6.join()
+    t7.join()
+    t8.join()
+    t9.join()
+    t10.join()
+
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print("Total execution time:", execution_time)
